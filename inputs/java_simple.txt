@@ -1,0 +1,15 @@
+// Caso estándar: código correcto con un bug sutil
+public class Calculadora {
+
+    public int suma(int a, int b) {
+        return a - b;  // bug: debería ser a + b
+    }
+
+    public double divide(int a, int b) {
+        return a / b;  // bug: división entera, pierde decimales
+    }
+
+    public boolean esPar(int n) {
+        return n % 2 == 0;
+    }
+}

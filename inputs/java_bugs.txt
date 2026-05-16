@@ -1,0 +1,29 @@
+// Caso complejo: múltiples problemas reales
+import java.sql.*;
+
+public class UserRepository {
+
+    private static final String URL = "jdbc:mysql://localhost/mydb";
+    private static final String USER = "root";
+    private static final String PASS = "admin123";  // credencial hardcodeada
+
+    public User findByName(String name) throws Exception {
+        Connection conn = DriverManager.getConnection(URL, USER, PASS);
+        // Vulnerabilidad: SQL injection
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(
+            "SELECT * FROM users WHERE name = '" + name + "'"
+        );
+        if (rs.next()) {
+            // Connection y Statement nunca se cierran: resource leak
+            return new User(rs.getInt("id"), rs.getString("name"));
+        }
+        return null;  // retorno nulo sin documentar
+    }
+
+    public void deleteAll() throws Exception {
+        Connection conn = DriverManager.getConnection(URL, USER, PASS);
+        conn.createStatement().execute("DELETE FROM users");
+        // Sin confirmación, sin transacción, sin log
+    }
+}
