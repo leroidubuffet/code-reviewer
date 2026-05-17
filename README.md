@@ -13,13 +13,19 @@ Cada TODO corresponde a un bloque del módulo:
 
 | TODO | Qué implementar | Criterio de éxito |
 |------|----------------|-------------------|
-| TODO 1 | Construir el prompt (system + user) | El endpoint responde con JSON |
+| TODO 1 | Construir el user message con `<<CODE>>` | El endpoint responde con JSON |
 | TODO 2 | Extraer metadata y loguear modelo y tokens | Log `[2]` y `[3]` aparecen en consola |
 | TODO 3 | Deserializar la respuesta al record `Review` | El JSON tiene los 4 campos correctos |
 | TODO 4 | Distinguir errores 4xx de errores 5xx | `BadRequestException` vs `TransientLlmException` |
 | TODO 5 | Implementar el endpoint de streaming | `POST /review/stream` devuelve tokens en tiempo real |
 
 Cuando los cinco criterios sean observables, el ejercicio está completo.
+
+> **El system prompt no es un TODO.**
+> Está en `src/main/resources/prompts/system_prompt.txt` y se carga
+> automáticamente al arrancar. El ejercicio de iteración de prompts
+> (módulo 3) consiste en editar ese fichero ronda a ronda y observar
+> cómo cambia el output — sin tocar código Java.
 
 ---
 

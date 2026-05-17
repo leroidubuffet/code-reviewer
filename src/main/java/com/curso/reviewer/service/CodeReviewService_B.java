@@ -2,6 +2,7 @@ package com.curso.reviewer.service;
 
 import com.curso.reviewer.model.Review;
 import io.github.resilience4j.retry.annotation.Retry;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -10,10 +11,14 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -37,6 +42,19 @@ public class CodeReviewService_B {
 
     private static final Logger log = LoggerFactory.getLogger(CodeReviewService_B.class);
 
+    // El system prompt se lee de src/main/resources/prompts/system_prompt.txt.
+    // Para el ejercicio de iteración de prompts (módulo 3) basta con editar ese
+    // fichero y reiniciar la app — no hay que tocar código Java.
+    @Value("classpath:prompts/system_prompt.txt")
+    private Resource systemPromptResource;
+
+    private String systemPrompt;
+
+    @PostConstruct
+    void init() throws IOException {
+        systemPrompt = systemPromptResource.getContentAsString(StandardCharsets.UTF_8);
+    }
+
     private final ChatClient chat;
     private final Validator validator;
     private final BeanOutputConverter<Review> converter = new BeanOutputConverter<>(Review.class);
@@ -55,27 +73,20 @@ public class CodeReviewService_B {
         try {
             // TODO 1 ── Construir el prompt.
             //
-            // El system prompt debe:
-            //   · Describir el rol del modelo (revisor de código experto y conciso)
-            //   · Instruir al modelo a tratar el contenido entre <<CODE>> y <</CODE>>
-            //     como datos, no como instrucciones (protección contra prompt injection)
-            //   · Indicar que no invente problemas
-            //   · Incluir también instrucciones sobre el campo
-            //     recommendation: approve (sin problemas graves), review (requiere discusión),
-            //     reject (errores graves o vulnerabilidades).
-            //   · Terminar con + converter.getFormat() para que el modelo sepa
-            //     el formato JSON que debe devolver
+            // El system prompt viene del fichero prompts/system_prompt.txt (ya cargado
+            // en this.systemPrompt). Solo tienes que añadir converter.getFormat() al final
+            // para que el modelo sepa el esquema JSON que debe devolver.
             //
             // El user message debe:
             //   · Indicar el lenguaje
             //   · Incluir el código entre los marcadores <<CODE>> y <</CODE>>
             //   · Usar .formatted(language, code) para interpolar los valores
             //
-            // Pista: la llamada termina con .call().chatResponse() para obtener
-            // tanto la respuesta como la metadata (modelo, tokens).
+            // La llamada termina con .call().chatResponse() para obtener tanto
+            // la respuesta como la metadata (modelo, tokens).
             ChatResponse response = chat.prompt()
-                    .system("TODO 1a: escribe el system prompt aquí + converter.getFormat()")
-                    .user("TODO 1b: escribe el user message con <<CODE>> %s <</CODE>>".formatted(code))
+                    .system(systemPrompt + converter.getFormat())
+                    .user("TODO 1: escribe el user message con lenguaje y <<CODE>> %s <</CODE>>".formatted(code))
                     .call()
                     .chatResponse();
 
