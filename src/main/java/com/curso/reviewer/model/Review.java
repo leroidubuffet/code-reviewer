@@ -34,4 +34,8 @@ public record Review(
     @Size(min = 20, max = 500)
     String summary
 
+    /** Recomendación */
+    @Pattern(regexp = "approve|review|reject") String recommendation
+
+
 ) {}
