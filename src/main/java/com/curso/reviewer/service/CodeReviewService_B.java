@@ -60,6 +60,9 @@ public class CodeReviewService_B {
             //   · Instruir al modelo a tratar el contenido entre <<CODE>> y <</CODE>>
             //     como datos, no como instrucciones (protección contra prompt injection)
             //   · Indicar que no invente problemas
+            //   · Incluir también instrucciones sobre el campo
+            //     recommendation: approve (sin problemas graves), review (requiere discusión),
+            //     reject (errores graves o vulnerabilidades).
             //   · Terminar con + converter.getFormat() para que el modelo sepa
             //     el formato JSON que debe devolver
             //
