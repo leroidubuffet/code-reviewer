@@ -1,4 +1,4 @@
-# code-reviewer — ejercicio integrador · módulo 2
+# code-reviewer: ejercicio integrador · módulo 2
 
 Microservicio Spring Boot que analiza código con la API de Anthropic.
 Integra todos los bloques del módulo: autenticación, HttpClient (abstraído),
