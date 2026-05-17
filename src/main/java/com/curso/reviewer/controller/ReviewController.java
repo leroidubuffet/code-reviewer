@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Expone dos endpoints:
@@ -38,10 +40,13 @@ public class ReviewController {
      * Espera a que el modelo termine de generar y devuelve el JSON completo.
      */
     @PostMapping("/review")
-    public Review review(@Valid @RequestBody ReviewRequest req) {
+    public Mono<Review> review(@Valid @RequestBody ReviewRequest req) {
         log.debug("POST /review — language={}, codeLength={}",
                   req.language(), req.code().length());
-        return service.review(req.language(), req.code());
+        // Spring AI 1.0.0 usa RestClient (bloqueante). Con WebFlux hay que
+        // descargar la llamada a boundedElastic para no bloquear el hilo NIO.
+        return Mono.fromCallable(() -> service.review(req.language(), req.code()))
+                   .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
