@@ -60,14 +60,14 @@ mvn spring-boot:run
 ```bash
 curl -X POST http://localhost:8080/review \
   -H "Content-Type: application/json" \
-  -d "{\"language\": \"java\", \"code\": \"$(cat inputs/java_simple.txt)\"}"
+  -d "$(jq -n --arg lang java --rawfile code inputs/java_simple.txt '{language: $lang, code: $code}')"
 ```
 
 ### Endpoint de streaming (ver tokens llegar en tiempo real)
 ```bash
 curl --no-buffer -X POST http://localhost:8080/review/stream \
   -H "Content-Type: application/json" \
-  -d "{\"language\": \"java\", \"code\": \"$(cat inputs/java_simple.txt)\"}"
+  -d "$(jq -n --arg lang java --rawfile code inputs/java_simple.txt '{language: $lang, code: $code}')"
 ```
 
 ### Con los tres inputs de prueba
@@ -76,7 +76,7 @@ for f in inputs/java_simple.txt inputs/java_bugs.txt inputs/java_extremo.txt; do
   echo "=== $f ==="
   curl -s -X POST http://localhost:8080/review \
     -H "Content-Type: application/json" \
-    -d "{\"language\": \"java\", \"code\": \"$(cat $f)\"}" | python3 -m json.tool
+    -d "$(jq -n --arg lang java --rawfile code "$f" '{language: $lang, code: $code}')" | python3 -m json.tool
   echo
 done
 ```
@@ -123,7 +123,7 @@ sudo ip link set eth0 down
 # Hacer la petición en otro terminal — verás los reintentos
 curl -X POST http://localhost:8080/review \
   -H "Content-Type: application/json" \
-  -d '{"language": "java", "code": "public void test() {}"}'
+  -d '{"language":"java","code":"public void test() {}"}'
 
 # Restaurar red
 sudo ip link set eth0 up
