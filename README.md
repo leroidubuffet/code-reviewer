@@ -17,7 +17,7 @@ cp src/main/java/com/curso/reviewer/service/CodeReviewService_A.java \
    src/main/java/com/curso/reviewer/service/CodeReviewService.java
 ```
 
-**Activar opción B (TODOs para el alumno):**
+**Activar opción B (TODOs para el ejercicio):**
 ```bash
 cp src/main/java/com/curso/reviewer/service/CodeReviewService_B.java \
    src/main/java/com/curso/reviewer/service/CodeReviewService.java
