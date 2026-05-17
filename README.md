@@ -95,7 +95,7 @@ Los cinco eventos deben ser observables en los logs:
     WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
     WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
 [5] La respuesta llega al cliente como JSON tipado:
-    {"score":4,"issues":["...","..."],"summary":"..."}
+    {"score":4,"issues":["...","..."],"summary":"...","recommendation":"review"}
 ```
 
 ---
