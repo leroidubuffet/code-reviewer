@@ -3,7 +3,7 @@ package com.curso.reviewer.model;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import jakarta.validation.constraints.Pattern;
@@ -28,7 +28,7 @@ public record Review(
      * Lista de problemas encontrados. Cada elemento es una frase corta
      * que describe un problema concreto. Vacía si no hay problemas.
      */
-    @NotEmpty
+    @NotNull
     List<@NotBlank String> issues,
 
     /** Resumen ejecutivo del análisis, entre 20 y 500 caracteres. */
