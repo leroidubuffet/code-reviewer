@@ -1,76 +1,88 @@
 # code-reviewer: ejercicio módulo 2
 
 Microservicio Spring Boot que analiza código con la API de Anthropic.
-Integra todos los bloques del módulo: autenticación, HttpClient (abstraído),
-Spring AI, parámetros de llamada, structured output, streaming y reintentos.
+Integra todos los bloques del módulo: autenticación, Spring AI,
+parámetros de llamada, structured output, streaming y reintentos.
 
 ---
 
-## Cambiar entre opción A y opción B
+## Qué tienes que hacer
 
-El proyecto tiene dos versiones del servicio principal. Solo una puede estar
-activa a la vez. Para cambiar:
+El ejercicio consiste en implementar los 5 TODOs de `CodeReviewService_B.java`.
+Cada TODO corresponde a un bloque del módulo:
 
-**Activar opción A (código completo):**
-```bash
-cp src/main/java/com/curso/reviewer/service/CodeReviewService_A.java \
-   src/main/java/com/curso/reviewer/service/CodeReviewService.java
-```
+| TODO | Qué implementar | Criterio de éxito |
+|------|----------------|-------------------|
+| TODO 1 | Construir el prompt (system + user) | El endpoint responde con JSON |
+| TODO 2 | Extraer metadata y loguear modelo y tokens | Log `[2]` y `[3]` aparecen en consola |
+| TODO 3 | Deserializar la respuesta al record `Review` | El JSON tiene los 4 campos correctos |
+| TODO 4 | Distinguir errores 4xx de errores 5xx | `BadRequestException` vs `TransientLlmException` |
+| TODO 5 | Implementar el endpoint de streaming | `POST /review/stream` devuelve tokens en tiempo real |
 
-**Activar opción B (TODOs para el ejercicio):**
-```bash
-cp src/main/java/com/curso/reviewer/service/CodeReviewService_B.java \
-   src/main/java/com/curso/reviewer/service/CodeReviewService.java
-```
-
-El resto de ficheros (pom.xml, application.yml, ReviewController, Review,
-ReviewRequest, ChatClientConfig) son idénticos en las dos opciones.
+Cuando los cinco criterios sean observables, el ejercicio está completo.
 
 ---
 
 ## Setup
 
 ### 1. Requisitos
+
 - JDK 21
 - Maven 3.9+
-- API key de Anthropic (console.anthropic.com → API Keys)
+- [`jq`](https://jqlang.org) (para los comandos curl de prueba)
+- API key de Anthropic — [console.anthropic.com → API Keys](https://console.anthropic.com)
 
 ### 2. Configurar la clave
+
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 
-# Opcional: cambiar el modelo sin tocar código
-export ANTHROPIC_MODEL=claude-haiku-4-5-20251001  # más barato para pruebas
+# Opcional: modelo más barato para pruebas
+export ANTHROPIC_MODEL=claude-haiku-4-5-20251001
 ```
 
-### 3. Activar una opción y arrancar
-```bash
-# Opción A (código completo)
-cp src/main/java/com/curso/reviewer/service/CodeReviewService_A.java \
-   src/main/java/com/curso/reviewer/service/CodeReviewService.java
+### 3. Activar la Opción B (punto de partida del ejercicio)
 
+```bash
+cp src/main/java/com/curso/reviewer/service/CodeReviewService_B.java \
+   src/main/java/com/curso/reviewer/service/CodeReviewService.java
+```
+
+### 4. Arrancar
+
+```bash
 mvn spring-boot:run
 ```
+
+> **Opción A — solución de referencia**
+> Si quieres ver una implementación completa para comparar:
+> ```bash
+> cp src/main/java/com/curso/reviewer/service/CodeReviewService_A.java \
+>    src/main/java/com/curso/reviewer/service/CodeReviewService.java
+> ```
 
 ---
 
 ## Probar los endpoints
 
 ### Endpoint síncrono
+
 ```bash
 curl -X POST http://localhost:8080/review \
   -H "Content-Type: application/json" \
   -d "$(jq -n --arg lang java --rawfile code inputs/java_simple.txt '{language: $lang, code: $code}')"
 ```
 
-### Endpoint de streaming (ver tokens llegar en tiempo real)
+### Endpoint de streaming (tokens en tiempo real)
+
 ```bash
 curl --no-buffer -X POST http://localhost:8080/review/stream \
   -H "Content-Type: application/json" \
   -d "$(jq -n --arg lang java --rawfile code inputs/java_simple.txt '{language: $lang, code: $code}')"
 ```
 
-### Con los tres inputs de prueba
+### Los tres inputs de prueba de una vez
+
 ```bash
 for f in inputs/java_simple.txt inputs/java_bugs.txt inputs/java_extremo.txt; do
   echo "=== $f ==="
@@ -85,68 +97,50 @@ done
 
 ## Criterio de éxito
 
-Los cinco eventos deben ser observables en los logs:
+Los cinco eventos deben ser observables. Los números corresponden a los TODOs:
 
 ```
-[1] DEBUG ReviewController  : POST /review — language=java, codeLength=312
-[2] INFO  CodeReviewService : LLM call OK — model=claude-sonnet-4-6 ...
-[3] INFO  CodeReviewService : ... input_tokens=487 output_tokens=134 latency_ms=3241
-[4] WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
-    WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
-    WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
-[5] La respuesta llega al cliente como JSON tipado:
-    {"score":4,"issues":["...","..."],"summary":"...","recommendation":"review"}
+[1+3] La respuesta llega al cliente como JSON con los 4 campos:
+      {"score":4,"issues":["..."],"summary":"...","recommendation":"review"}
+
+[2]   INFO  CodeReviewService : LLM call OK — model=claude-sonnet-4-6 ...
+[3]   INFO  CodeReviewService : ... input_tokens=487 output_tokens=134 latency_ms=3241
+
+[4]   WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
+      WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
+      WARN  CodeReviewService : LLM transient error — status=503 ... — will retry
+
+[5]   curl --no-buffer .../review/stream  →  tokens aparecen uno a uno en el terminal
 ```
 
 ---
 
-## Provocar el error 5xx para ver los reintentos (criterio 4)
+## Provocar el error 5xx para ver los reintentos (TODO 4)
 
-**Opción rápida — URL incorrecta temporal:**
+Edita `application.yml` y añade `base-url` con una URL que no existe:
 
-En `application.yml`, cambiar temporalmente:
 ```yaml
 spring:
   ai:
     anthropic:
-      base-url: https://api.anthropic.com/v1/messages-bad  # URL que no existe
-```
-Arrancar, hacer una petición, observar los reintentos en el log, restaurar la URL.
-
-**Opción con red — desactivar la red de la MV:**
-
-Desde el terminal de la MV mientras la aplicación está corriendo:
-```bash
-# Desactivar red (requiere sudo)
-sudo ip link set eth0 down
-
-# Hacer la petición en otro terminal — verás los reintentos
-curl -X POST http://localhost:8080/review \
-  -H "Content-Type: application/json" \
-  -d '{"language":"java","code":"public void test() {}"}'
-
-# Restaurar red
-sudo ip link set eth0 up
+      api-key: ${ANTHROPIC_API_KEY}
+      base-url: https://api.anthropic.com/v1/messages-bad   # ← añadir esta línea
 ```
 
-Resilience4j reintentará 4 veces con backoff exponencial: 500ms, 1s, 2s.
-Los tres reintentos son visibles en el log con timestamp.
+Arranca, haz una petición y observa los reintentos en el log. Luego elimina
+la línea `base-url` para restaurar el comportamiento normal.
+
+Resilience4j reintentará 4 veces con backoff exponencial: 500 ms, 1 s, 2 s.
 
 ---
 
 ## Calcular el coste del ejercicio
 
-Al terminar, los logs tienen el total de tokens consumidos. Para convertirlos
-a coste aproximado, usar la tarifa pública de Anthropic
-(anthropic.com/pricing, columna claude-sonnet-4-6):
+Los logs muestran los tokens consumidos en cada llamada. Para convertirlos
+a coste aproximado usa la tarifa pública de Anthropic
+([anthropic.com/pricing](https://anthropic.com/pricing), columna claude-sonnet-4-6):
 
 ```
 coste = (input_tokens_total  / 1_000_000) * precio_input_por_MTok
       + (output_tokens_total / 1_000_000) * precio_output_por_MTok
-```
-
-Ejemplo con los valores del log:
-```
-input_tokens  = 1_847   →  1.847 / 1000 * precio_input
-output_tokens =   412   →  0.412 / 1000 * precio_output
 ```
