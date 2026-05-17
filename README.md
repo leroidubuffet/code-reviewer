@@ -150,6 +150,3 @@ Ejemplo con los valores del log:
 input_tokens  = 1_847   →  1.847 / 1000 * precio_input
 output_tokens =   412   →  0.412 / 1000 * precio_output
 ```
-
-El resultado suele ser menos de 0,01 €. Convierte los tokens de algo abstracto
-en algo concreto.
