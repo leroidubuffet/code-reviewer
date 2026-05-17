@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Respuesta estructurada del análisis de código.
@@ -32,7 +33,7 @@ public record Review(
 
     /** Resumen ejecutivo del análisis, entre 20 y 500 caracteres. */
     @Size(min = 20, max = 500)
-    String summary
+    String summary,
 
     /** Recomendación */
     @Pattern(regexp = "approve|review|reject") String recommendation
