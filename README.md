@@ -23,9 +23,7 @@ Cuando los cinco criterios sean observables, el ejercicio está completo.
 
 > **El system prompt no es un TODO.**
 > Está en `src/main/resources/prompts/system_prompt.txt` y se carga
-> automáticamente al arrancar. El ejercicio de iteración de prompts
-> (módulo 3) consiste en editar ese fichero ronda a ronda y observar
-> cómo cambia el output — sin tocar código Java.
+> automáticamente al arrancar.
 
 ---
 
