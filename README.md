@@ -52,6 +52,17 @@ cp src/main/java/com/curso/reviewer/service/CodeReviewService_B.java \
    src/main/java/com/curso/reviewer/service/CodeReviewService.java
 ```
 
+> **IMPORTANTE**:
+> **Conflicto de nombres de clase (Paso obligatorio)**:
+> Tras copiar la plantilla, el código no compilará porque el nombre de la clase, el constructor y el logger dentro del nuevo archivo seguirán llamándose `CodeReviewService_B`, lo cual no coincide con el nombre de archivo `CodeReviewService.java`.
+> 
+> Para solucionarlo, debes renombrar `CodeReviewService_B` a `CodeReviewService` (clase, constructor y logger). Puedes hacerlo manualmente en tu editor de código o ejecutar el siguiente comando en tu terminal:
+>
+>   **Linux**:
+>   ```bash
+>   sed -i 's/CodeReviewService_B/CodeReviewService/g' src/main/java/com/curso/reviewer/service/CodeReviewService.java
+>   ```
+
 ### 4. Arrancar
 
 ```bash
@@ -64,6 +75,11 @@ mvn spring-boot:run
 > cp src/main/java/com/curso/reviewer/service/CodeReviewService_A.java \
 >    src/main/java/com/curso/reviewer/service/CodeReviewService.java
 > ```
+> *Nota: Recuerda renombrar también en este caso `CodeReviewService_A` por `CodeReviewService`. Puedes usar:*
+> - **Linux**:
+>   ```bash
+>   sed -i 's/CodeReviewService_A/CodeReviewService/g' src/main/java/com/curso/reviewer/service/CodeReviewService.java
+>   ```
 
 ---
 
